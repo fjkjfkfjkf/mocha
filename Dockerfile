@@ -1,14 +1,18 @@
-# Build stage
-FROM node:21-alpine as build
-WORKDIR /app
-COPY package.json ./
-RUN npm install
-COPY . . 
-RUN npm run build
+FROM node:21-alpine
 
-# Production stage
-FROM node:21-alpine  
+# Set working directory
 WORKDIR /app
-COPY --from=build /app/build .
-EXPOSE 8080
+
+# Install production dependencies only 
+COPY package*.json ./
+RUN npm install --only=production
+
+# Copy app
+COPY . .
+
+# Build and serve optimized app
+RUN npm run build
 CMD ["npm", "start"]
+
+# Expose port
+EXPOSE 8080
