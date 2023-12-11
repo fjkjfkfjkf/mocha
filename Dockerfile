@@ -1,12 +1,14 @@
-FROM node:21-alpine
-
+# Build stage
+FROM node:21-alpine as build
 WORKDIR /app
-
 COPY package.json ./
-RUN npm install 
+RUN npm install
+COPY . . 
+RUN npm run build
 
-COPY . .
-
+# Production stage
+FROM node:21-alpine  
+WORKDIR /app
+COPY --from=build /app/build .
 EXPOSE 8080
-
-CMD ["npm", "run", "dev"]
+CMD ["npm", "start"]
